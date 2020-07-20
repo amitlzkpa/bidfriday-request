@@ -4,7 +4,7 @@
       Hello {{ name }}
     </p>
     <button @click="onBtnClick">Click me</button>
-    <p v-for="row in rows">
+    <p v-for="row in rows" :key="row.name">
       {{ row.name }}
     </p>
   </div>
