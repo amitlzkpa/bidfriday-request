@@ -3,7 +3,8 @@
     <p v-if="name !== null">
       Hello {{ name }}
     </p>
-    <button @click="onBtnClick">Click me</button>
+    <button @click="onNewBoardClk">New Board</button>
+    <button @click="onViewBoardClk">Show Board Items</button>
     <p v-for="row in rows" :key="row.name">
       {{ row.name }}
     </p>
@@ -31,7 +32,16 @@ export default {
 
   },
   methods: {
-    async onBtnClick () {
+    async onNewBoardClk() {
+      while(!ctx) await this.wait(200);
+
+      let mutStr = `mutation { create_board (board_name: "my board", board_kind: public) { id } }`;
+      console.log(mutStr);
+      let res = await this.monday.api(mutStr);
+      console.log(res.data);
+
+    },
+    async onViewBoardClk() {
       while(!ctx) await this.wait(200);
 
       let boardId = ctx.boardId;
