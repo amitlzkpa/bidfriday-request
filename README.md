@@ -1,4 +1,4 @@
-# dashboard
+# bidfriday-request
 
 ## Project setup
 ```
