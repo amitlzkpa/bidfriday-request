@@ -1,6 +1,8 @@
 <template>
   <div>    
     <button @click="refresh">Refresh</button>
+    <button v-if="linkedBoardId === null" @click="enableBidding">Enable Bidding</button>
+    <span v-else>{{ linkedBoardId }}</span>
     <p v-for="row in rows" :key="row.name">
       {{ row.name }}
     </p>
@@ -14,6 +16,7 @@ let ctx;
 export default {
   data () {
     return {
+      linkedBoardId: null,
       rows: []
     };
   },
@@ -32,10 +35,36 @@ export default {
 
       let boardId = ctx.boardId;
       let queryStr = `query { boards (ids: ${boardId}) { name items { name } } }`;
-      console.log(queryStr);
       let res = await this.monday.api(queryStr);
-      console.log(res.data);
       this.rows = res.data.boards[0].items;
+      
+      res = await this.monday.storage.instance.getItem('linkedBidBoard');
+      this.linkedBoardId = res.data.value;
+    },
+    async enableBidding() {
+      while(!ctx) await this.wait(200);
+
+      let mutStr;
+      let res;
+
+      mutStr = `mutation { create_board (board_name: "New Board", board_kind: private) { id } }`;
+      res = await this.monday.api(mutStr);
+
+      this.linkedBoardId = res.data.create_board.id;
+
+      for(let r of this.rows) {
+        mutStr = `mutation { create_column (board_id: ${this.linkedBoardId}, title: "${r.name}", column_type: long_text) { id } }`;
+        res = await this.monday.api(mutStr);
+      }
+
+      await this.monday.storage.instance.setItem('linkedBidBoard', this.linkedBoardId);
+
+      await this.monday.execute("notice", { 
+        message: "Enabled bidding for this request. Jump over to the bidding board to invite bidders.",
+        type: "success",
+        timeout: 10000,
+      });
+
     }
   }
 }
