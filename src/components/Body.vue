@@ -2,7 +2,10 @@
   <div>    
     <button @click="refresh">Refresh</button>
     <button v-if="linkedBoardId === null" @click="enableBidding">Enable Bidding</button>
-    <span v-else>{{ linkedBoardId }}</span>
+    <span v-else>
+      {{ linkedBoardId }}
+      <button @click="deleteBidding">Delete Bidding</button>
+    </span>
     <p v-for="row in rows" :key="row.name">
       {{ row.name }}
     </p>
@@ -16,6 +19,7 @@ let ctx;
 export default {
   data () {
     return {
+      currBoardData: null,
       linkedBoardId: null,
       rows: []
     };
@@ -36,7 +40,8 @@ export default {
       let boardId = ctx.boardId;
       let queryStr = `query { boards (ids: ${boardId}) { name items { name } } }`;
       let res = await this.monday.api(queryStr);
-      this.rows = res.data.boards[0].items;
+      this.currBoardData = res.data.boards[0];
+      this.rows = this.currBoardData.items;
       
       res = await this.monday.storage.instance.getItem('linkedBidBoard');
       this.linkedBoardId = res.data.value;
@@ -47,7 +52,7 @@ export default {
       let mutStr;
       let res;
 
-      mutStr = `mutation { create_board (board_name: "New Board", board_kind: private) { id } }`;
+      mutStr = `mutation { create_board (board_name: "${this.currBoardData.name}[Bids]", board_kind: private) { id } }`;
       res = await this.monday.api(mutStr);
 
       this.linkedBoardId = res.data.create_board.id;
@@ -65,6 +70,19 @@ export default {
         timeout: 10000,
       });
 
+    },
+    async deleteBidding() {
+      let mutStr;
+      let res;
+
+      mutStr = `mutation { archive_board (board_id: ${this.linkedBoardId}) { id } }`;
+      res = await this.monday.api(mutStr);
+      console.log(res);
+
+      res = await this.monday.storage.instance.setItem('linkedBidBoard', null);
+      console.log(res);
+
+      this.linkedBoardId = null;
     }
   }
 }
