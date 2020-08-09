@@ -49,6 +49,10 @@ export default {
       
       res = await this.monday.storage.instance.getItem(key_linkedBidBoard);
       this.linkedBoardId = res.data.value;
+
+      let extURL = `${this.BIDSERVER_URL}/api/tender/test?tenderBoardId=${boardId}&bidsBoardId=${this.linkedBoardId}&userId=${this.user.id}&accId=${this.user.account.id}`;
+      let d = await this.$api.get(extURL);
+      console.log(d);
     },
     async enableBidding() {
       while(!ctx) await this.wait(200);
