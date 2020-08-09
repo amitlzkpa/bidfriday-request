@@ -20,12 +20,15 @@ let key_linkedBidBoard = "test1";
 export default {
   data () {
     return {
+      user: null,
       currBoardData: null,
       linkedBoardId: null,
       rows: []
     };
   },
   async mounted () {
+    let res = await this.monday.api('query { me { id name country_code location url account { id name } } }');
+    this.user = res.data.me;
 
     this.monday.listen("context", async (res) => {
       ctx = res.data;
