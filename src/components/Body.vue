@@ -15,6 +15,7 @@
 <script>
 
 let ctx;
+let key_linkedBidBoard = "test1";
 
 export default {
   data () {
@@ -43,7 +44,7 @@ export default {
       this.currBoardData = res.data.boards[0];
       this.rows = this.currBoardData.items;
       
-      res = await this.monday.storage.instance.getItem('linkedBidBoard');
+      res = await this.monday.storage.instance.getItem(key_linkedBidBoard);
       this.linkedBoardId = res.data.value;
     },
     async enableBidding() {
@@ -62,7 +63,7 @@ export default {
         res = await this.monday.api(mutStr);
       }
 
-      await this.monday.storage.instance.setItem('linkedBidBoard', this.linkedBoardId);
+      await this.monday.storage.instance.setItem(key_linkedBidBoard, this.linkedBoardId);
 
       await this.monday.execute("notice", { 
         message: "Enabled bidding for this request. Jump over to the bidding board to invite bidders.",
@@ -75,12 +76,12 @@ export default {
       let mutStr;
       let res;
 
-      mutStr = `mutation { archive_board (board_id: ${this.linkedBoardId}) { id } }`;
+      mutStr = `mutation { archive_board (board_id: ${this.linkedBoardId}) { id name } }`;
       res = await this.monday.api(mutStr);
-      console.log(res);
+      console.log(res.data);
 
-      res = await this.monday.storage.instance.setItem('linkedBidBoard', null);
-      console.log(res);
+      res = await this.monday.storage.instance.deleteItem(key_linkedBidBoard);
+      console.log(res.data);
 
       this.linkedBoardId = null;
     }
