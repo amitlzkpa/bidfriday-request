@@ -8,5 +8,6 @@ module.exports = {
     disableHostCheck: true,
     port: PORT,
     progress: false,
+    overlay: false
   }
 };

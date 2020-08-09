@@ -15,7 +15,7 @@
 <script>
 
 let ctx;
-let key_linkedBidBoard = "test1";
+let key_linkedBidBoard = "test3";
 
 export default {
   data () {
@@ -42,17 +42,13 @@ export default {
       while(!ctx) await this.wait(200);
 
       let boardId = ctx.boardId;
-      let queryStr = `query { boards (ids: ${boardId}) { name items { name } } }`;
+      let queryStr = `query { boards (ids: ${boardId}) { id name items { name } } }`;
       let res = await this.monday.api(queryStr);
       this.currBoardData = res.data.boards[0];
       this.rows = this.currBoardData.items;
       
       res = await this.monday.storage.instance.getItem(key_linkedBidBoard);
       this.linkedBoardId = res.data.value;
-
-      let extURL = `${this.BIDSERVER_URL}/api/tender/test?tenderBoardId=${boardId}&bidsBoardId=${this.linkedBoardId}&userId=${this.user.id}&accId=${this.user.account.id}`;
-      let d = await this.$api.get(extURL);
-      console.log(d);
     },
     async enableBidding() {
       while(!ctx) await this.wait(200);
@@ -71,6 +67,14 @@ export default {
       }
 
       await this.monday.storage.instance.setItem(key_linkedBidBoard, this.linkedBoardId);
+      
+      // this request fails for some unknown reason; but work is done on the server
+      try {
+        let extURL = `${this.BIDSERVER_URL}/api/tender/monday?tenderBoardId=${this.currBoardData.id}&bidsBoardId=${this.linkedBoardId}&userId=${this.user.id}&accId=${this.user.account.id}`;
+        await this.$api.get(extURL);
+      } catch(excp) {
+        console.log(excp);
+      }
 
       await this.monday.execute("notice", { 
         message: "Enabled bidding for this request. Jump over to the bidding board to invite bidders.",
