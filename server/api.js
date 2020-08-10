@@ -30,4 +30,11 @@ router.post('/sync-boardpairs', async (req, res) => {
 
 
 
+router.get('/boardpair-from-requestboard/:requestBoard', async (req, res) => {
+  let b = await BoardPair.findOne({ requestBoard: req.params.requestBoard })
+  return res.send(b);
+});
+
+
+
 module.exports = router;

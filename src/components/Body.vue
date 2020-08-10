@@ -54,6 +54,10 @@ export default {
       this.linkedBoardId = res.data.value;
 
       // if linkedBoardId is not set, fetch from db
+      if (!this.linkedBoardId) {
+        res = await this.$api.get(`/api/boardpair-from-requestboard/${this.currBoardData.id}`);
+        this.linkedBoardId = res.data.bidsBoard;
+      }
 
       await this.monday.storage.instance.setItem(key_linkedBidBoard, this.linkedBoardId);
 
