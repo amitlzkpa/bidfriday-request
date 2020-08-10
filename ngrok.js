@@ -2,7 +2,8 @@ require('dotenv').config();
 const ngrok = require('ngrok');
 const clipboardy = require('clipboardy');
 
-const PORT = process.env.PORT || 8080;
+let PORT = 4001;
+if (process.env.NODE_ENV === 'production') PORT = process.env.PORT || 8080;
 
 (async function() {
   const url = await ngrok.connect(PORT);

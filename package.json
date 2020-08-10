@@ -6,16 +6,21 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "dev": "concurrently \"npm run serve\" \"node ngrok.js\""
+    "dev": "concurrently \"nodemon server/server.js\" \"npm run serve\" \"node ngrok.js\""
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
     "clipboardy": "^2.3.0",
     "concurrently": "^5.2.0",
+    "cookie-parser": "^1.4.5",
     "core-js": "^3.6.5",
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "monday-sdk-js": "^0.1.0",
+    "mongoose": "^5.9.28",
     "ngrok": "^3.2.7",
+    "nodemon": "^2.0.4",
     "vue": "^2.6.11"
   },
   "devDependencies": {
