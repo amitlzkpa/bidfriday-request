@@ -47,7 +47,6 @@ export default {
     async syncBidsBoard() {
       while(!ctx) await this.wait(200);
 
-      // let mutStr;
       let res;
       
       res = await this.monday.storage.instance.getItem(key_linkedBidBoard);
@@ -60,12 +59,23 @@ export default {
       }
 
       await this.monday.storage.instance.setItem(key_linkedBidBoard, this.linkedBoardId);
+      
+      let queryStr = `query { boards (ids: ${this.linkedBoardId}) { id name columns { title id } items { name } } }`;
+      res = await this.monday.api(queryStr);
 
+      let colsInBidsBoard = res.data.boards[0].columns.map(c => c.title).filter(c => !["Name", "Last Updated"].includes(c));
+      let colsInReqBoard = this.rows.map(r => r.name);
+
+      // no way in monday api to delete columns
+      // let colsToDel = colsInBidsBoard.filter(c => !colsInReqBoard.includes(c));
+      let colsToAdd = colsInReqBoard.filter(c => !colsInBidsBoard.includes(c));
+
+      let mutStr;
       // sync data across both boards
-      // for(let r of this.rows) {
-      //   mutStr = `mutation { create_column (board_id: ${this.linkedBoardId}, title: "${r.name}", column_type: long_text) { id } }`;
-      //   res = await this.monday.api(mutStr);
-      // }
+      for(let colName of colsToAdd) {
+        mutStr = `mutation { create_column (board_id: ${this.linkedBoardId}, title: "${colName}", column_type: long_text) { id } }`;
+        res = await this.monday.api(mutStr);
+      }
 
     }
   }
